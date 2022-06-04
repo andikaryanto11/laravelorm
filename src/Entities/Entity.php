@@ -89,7 +89,7 @@ class Entity implements IEntity
 
                     $param = [
                         'where' => [
-                            $foreignKey => $this->$primarykey()
+                             [ $foreignKey, '=',  $this->$primarykey() ]
                         ]
                     ];
                     $list = (new Repository($relatedEntity))->collect($param);

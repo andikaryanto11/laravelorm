@@ -78,7 +78,7 @@ class Repository implements IRepository
     {
         $param = [
             'where' => [
-                $this->props['primaryKey'] , '=',  $id
+               [ $this->props['primaryKey'] , '=',  $id ]
             ]
         ];
 
@@ -220,7 +220,7 @@ class Repository implements IRepository
                 }
             }
             if ($where) {
-                $this->builder->where($where[0], $where[1], $where[2]);
+                $this->builder->where($where);
             }
 
             if ($orwhere) {
@@ -252,38 +252,6 @@ class Repository implements IRepository
             }
 
 
-            if ($like) {
-                $this->builder->like($like);
-            }
-
-            if ($orlike) {
-                $this->builder->orLike($orlike);
-            }
-
-            if ($orlike) {
-                foreach ($orlike as $key => $v) {
-                    if (!empty($v)) {
-                        $this->builder->orLike($key, $v);
-                    }
-                }
-            }
-
-            if ($notlike) {
-                foreach ($notlike as $key => $v) {
-                    if (!empty($v)) {
-                        $this->builder->notLike($key, $v);
-                    }
-                }
-            }
-
-            if ($ornotlike) {
-                foreach ($ornotlike as $key => $v) {
-                    if (!empty($v)) {
-                        $this->builder->orNotLike($key, $v);
-                    }
-                }
-            }
-
             if ($group) {
                 $this->builder->groupStart();
                 foreach ($group as $key => $v) {
@@ -310,7 +278,7 @@ class Repository implements IRepository
             }
 
             if ($limit) {
-                $this->builder->limit($limit['size'], ($limit['page'] - 1) *  $limit['size']);
+                $this->builder->limit($limit['size'])->offset(($limit['page'] - 1) *  $limit['size']);
             }
         }
     }
