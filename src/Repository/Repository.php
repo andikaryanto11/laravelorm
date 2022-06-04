@@ -78,7 +78,7 @@ class Repository implements IRepository
     {
         $param = [
             'where' => [
-                $this->props['primaryKey'] => $id
+                $this->props['primaryKey'] , '=',  $id
             ]
         ];
 
@@ -220,7 +220,7 @@ class Repository implements IRepository
                 }
             }
             if ($where) {
-                $this->builder->where($where);
+                $this->builder->where($where[0], $where[1], $where[2]);
             }
 
             if ($orwhere) {
@@ -330,7 +330,7 @@ class Repository implements IRepository
         $results = null;
 
         if (empty($columns)) {
-            $selectColumns = implode(",", $this->selectColumns);
+            $selectColumns = $this->selectColumns;
             $resultInterface =  $this->builder->select($selectColumns)->get();
             $results = $resultInterface->getResult();
         } else {

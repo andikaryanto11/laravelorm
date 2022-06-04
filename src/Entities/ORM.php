@@ -61,10 +61,10 @@ class ORM
             if ($entityName == $key) {
                 foreach ($item['props'] as $propKey => $prop) {
                     if (!$prop['isEntity']) {
-                        $columns[] = $item['table'] . '.' . $propKey;
+                        $columns[] = $propKey;
                     } else {
                         if ($prop['relationType'] != 'many_to_one') {
-                            $columns[] = $item['table'] . '.' . $prop['foreignKey'];
+                            $columns[] = $prop['foreignKey'];
                         }
                     }
                 }
