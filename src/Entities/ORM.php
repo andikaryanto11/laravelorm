@@ -3,7 +3,6 @@
 namespace LaravelOrm\Entities;
 
 use Symfony\Component\Yaml\Yaml;
-use Config\Entity;
 
 class ORM
 {
@@ -82,7 +81,7 @@ class ORM
     public static function parse()
     {
         $result = array();
-        $dir = Entity::register();
+        $dir = app('config')->get('entity')['mapping'];;
         $cdir = scandir($dir);
         foreach ($cdir as $key => $value) {
             if (!in_array($value, array(".", ".."))) {
