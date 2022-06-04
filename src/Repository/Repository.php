@@ -331,11 +331,10 @@ class Repository implements IRepository
 
         if (empty($columns)) {
             $selectColumns = $this->selectColumns;
-            $resultInterface =  $this->builder->select($selectColumns)->get();
-            $results = $resultInterface->getResult();
+            $results =  $this->builder->select($selectColumns)->get();
         } else {
             $selectColumns = implode(",", $columns);
-            $results = $this->builder->select($selectColumns)->get()->getResult();
+            $results = $this->builder->select($selectColumns)->get();
         }
 
         $finalResults = null;
