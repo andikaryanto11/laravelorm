@@ -35,7 +35,7 @@ class ORM
             if ($entityName == $key) {
                 foreach ($item['props'] as $propKey => $prop) {
                     if (!$prop['isEntity']) {
-                        $columns[] = $propKey;
+                        $columns[] = $prop['field'];
                     } else {
                         if ($prop['relationType'] != 'many_to_one') {
                             $columns[] = $prop['foreignKey'];
@@ -61,7 +61,7 @@ class ORM
             if ($entityName == $key) {
                 foreach ($item['props'] as $propKey => $prop) {
                     if (!$prop['isEntity']) {
-                        $columns[] = $propKey;
+                        $columns[] = $prop['field'];
                     } else {
                         if ($prop['relationType'] != 'many_to_one') {
                             $columns[] = $prop['foreignKey'];
@@ -81,7 +81,20 @@ class ORM
     public static function parse()
     {
         $result = array();
-        $dir = app('config')->get('entity')['mapping'];;
+        $dir = app('config')->get('entity')['app'];;
+        $cdir = scandir($dir);
+        foreach ($cdir as $key => $value) {
+            if (!in_array($value, array(".", ".."))) {
+                if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+                    $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
+                    foreach ($fileRead as $key => $allProps) {
+                        $result[$key] = $allProps;
+                    }
+                }
+            }
+        }
+
+        $dir = base_path() . '/vendor/andikaryanto11/laravelcommon/src/App/Entities/Mapping';
         $cdir = scandir($dir);
         foreach ($cdir as $key => $value) {
             if (!in_array($value, array(".", ".."))) {
