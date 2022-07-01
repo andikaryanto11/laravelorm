@@ -329,7 +329,7 @@ class Repository implements IRepository
 
             foreach ($this->props['props'] as $key => $value) {
                 // if (!is_null($result->$key)) {
-                $method = 'set' . $key;
+                $method = 'set' . ucfirst($key);
                 $column = $value['field'];
                 if (!$value['isEntity']) {
                     if (!is_null($result->$column)) {

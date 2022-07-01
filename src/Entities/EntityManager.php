@@ -41,8 +41,8 @@ class EntityManager
      * @var array $reservedField
      */
     protected array $reservedField = [
-        'Created',
-        'Modified'
+        'created_at',
+        'updated_at'
     ];
 
     public function __construct()
@@ -119,7 +119,7 @@ class EntityManager
     private function update()
     {
         $data = $this->createArray();
-        $getPrimaryKey = "get" . $this->primaryKey;
+        $getPrimaryKey = "get" . ucfirst($this->primaryKey);
         $this->builder->where($this->primaryKey, $this->entity->{$getPrimaryKey}());
         if ($this->builder->update($data)) {
             return true;
@@ -136,9 +136,10 @@ class EntityManager
     {
 
         $data = $this->createArray();
-        if ($this->builder->set($data, true)->insert()) {
-            $primaryKey = "set" . $this->primaryKey;
-            $this->entity->$primaryKey($this->db->insertID());
+        $id = $this->builder->insertGetId($data);
+        if ($id > 0) {
+            $primaryKey = "set" . ucfirst($this->primaryKey);
+            $this->entity->$primaryKey($id);
             return true;
         }
 
@@ -176,24 +177,27 @@ class EntityManager
         $entityAsArray = [];
         $props = $this->entity->getProps();
         foreach ($props as $key => $prop) {
-            $getFunction = 'get' . $key;
-            $primaryKey = 'get' . $this->primaryKey;
+            $getFunction = 'get' . ucfirst($key);
+            $primaryKey = 'get' . ucfirst($this->primaryKey);
+            $field = $prop['field'];
             if (!$prop['isEntity']) {
-                if ($prop['type'] != 'datetime') {
-                    $entityAsArray[$key] = $this->entity->$getFunction();
+                if (strtolower($prop['type']) != 'datetime') {
+                    $entityAsArray[$field] = $this->entity->$getFunction();
                 } else {
-                    if (in_array($key, $this->reservedField)) {
+                    if (in_array($field, $this->reservedField)) {
                         $setDate = 'set' .  $key;
                         $date = new DateTime();
-                        if (empty($this->entity->$primaryKey()) && $key == 'Created') {
+                        if (empty($this->entity->$primaryKey()) && $field == 'created_at') {
                             $this->entity->$setDate($date);
-                            $entityAsArray[$key] = $date->format('Y-m-d h:i:s');
+                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
                         }
 
-                        if (!empty($this->entity->$primaryKey()) && $key == 'Modified') {
+                        if (!empty($this->entity->$primaryKey()) && $field == 'updated_at') {
                             $this->entity->$setDate($date);
-                            $entityAsArray[$key] = $date->format('Y-m-d h:i:s');
+                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
                         }
+                    } else {
+                        $entityAsArray[$field] = $this->entity->$getFunction()->format('Y-m-d h:i:s');
                     }
                 }
             } else {
