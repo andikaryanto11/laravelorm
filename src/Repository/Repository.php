@@ -329,17 +329,18 @@ class Repository implements IRepository
 
             foreach ($this->props['props'] as $key => $value) {
                 // if (!is_null($result->$key)) {
-                $method = 'set' . $key;
+                $method = 'set' . ucfirst($key);
+                $column = $value['field'];
                 if (!$value['isEntity']) {
-                    if (!is_null($result->$key)) {
+                    if (!is_null($result->$column)) {
                         if ($value['type'] != 'DateTime') {
                             if ($value['type'] == 'boolean') {
-                                $obj->$method((bool)$result->$key);
+                                $obj->$method((bool)$result->$column);
+                            } else {
+                                $obj->$method($result->$column);
                             }
-
-                            $obj->$method($result->$key);
                         } else {
-                            $newDate = new DateTime($result->$key);
+                            $newDate = new DateTime($result->$column);
                             $obj->$method($newDate);
                         }
                     }

@@ -67,6 +67,7 @@ class Entity implements IEntity
             $arrClass = explode('\\', $currentClass);
 
             $field = substr($name, 3);
+            $variableName = lcfirst($field);
             if (count($arrayType) > 1) {
                 $classIndex = count($arrayType) - 1;
                 if ($arrayType[$classIndex] == 'EntityList') {
@@ -77,7 +78,7 @@ class Entity implements IEntity
                     }
 
                     $currentProps = ORM::getProps($currentClass);
-                    $relatedEntity = $currentProps['props'][$field]['type'];
+                    $relatedEntity = $currentProps['props'][$variableName]['type'];
 
                     $primarykey = 'get' . $currentProps['primaryKey'];
 
@@ -85,7 +86,6 @@ class Entity implements IEntity
 
                     $currentClassIndex = count($arrClass) - 1;
                     $foreignKey = $relatedProps['props'][$arrClass[$currentClassIndex]]['foreignKey'];
-
 
                     $param = [
                         'where' => [
@@ -104,8 +104,8 @@ class Entity implements IEntity
                     }
 
                     $currentProps = ORM::getProps($currentClass);
-                    $relatedEntity = $currentProps['props'][$field]['type'];
-                    $foreignKey = $currentProps['props'][$field]['foreignKey'];
+                    $relatedEntity = $currentProps['props'][$variableName]['type'];
+                    $foreignKey = $currentProps['props'][$variableName]['foreignKey'];
 
                     $listOf = get_class($this);
                     $looper = EntityLooper::getInstance($listOf);
@@ -116,7 +116,7 @@ class Entity implements IEntity
                         $primaryKey = '';
                         $relatedClass = ORM::getProps($relatedEntity);
                         $primaryKey = $relatedClass['primaryKey'];
-                        if (empty($looper->getItems())) {
+                        if (empty($looper->getItems()) && count($entitylist->getAssociatedKey()) > 0) {
                             $param = [
                                 'whereIn' => [
                                     $primaryKey => $entitylist->getAssociatedKey()[$foreignKey]
