@@ -116,7 +116,7 @@ class Entity implements IEntity
                         $primaryKey = '';
                         $relatedClass = ORM::getProps($relatedEntity);
                         $primaryKey = $relatedClass['primaryKey'];
-                        if (empty($looper->getItems())) {
+                        if (empty($looper->getItems()) && count($entitylist->getAssociatedKey()) > 0) {
                             $param = [
                                 'whereIn' => [
                                     $primaryKey => $entitylist->getAssociatedKey()[$foreignKey]
