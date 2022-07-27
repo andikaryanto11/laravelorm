@@ -60,7 +60,7 @@ class Repository implements IRepository
     /**
      * Create new instance of class
      *
-     * @return IEntity;
+     * @return \LaravelOrm\Interfaces\IEntity
      */
     public function newEntity()
     {
