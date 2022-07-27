@@ -53,10 +53,10 @@ class EntityManager
     /**
      * Set Entity to persist
      *
-     * @param IEntity $entity
+     * @param mixed $entity
      * @return EntityManager
      */
-    private function setEntity(IEntity $entity)
+    private function setEntity($entity)
     {
         $this->entity = $entity;
         $this->primaryKey = $this->entity->getPrimaryKeyName();
@@ -99,7 +99,7 @@ class EntityManager
      *
      * @return bool
      */
-    public function persist(IEntity $entity)
+    public function persist($entity)
     {
         $this->setEntity($entity);
         $primaryKey = 'get' . $this->primaryKey;

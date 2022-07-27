@@ -85,10 +85,14 @@ class ORM
         $cdir = scandir($dir);
         foreach ($cdir as $key => $value) {
             if (!in_array($value, array(".", ".."))) {
+                $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
                 if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
-                    foreach ($fileRead as $key => $allProps) {
-                        $result[$key] = $allProps;
+                    $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
+                    if($extension == 'yml'){
+                        $fileRead = Yaml::parseFile($pathFile);
+                        foreach ($fileRead as $key => $allProps) {
+                            $result[$key] = $allProps;
+                        }
                     }
                 }
             }
