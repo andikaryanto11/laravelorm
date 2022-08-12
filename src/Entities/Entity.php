@@ -78,24 +78,55 @@ class Entity implements IEntity
                     }
 
                     $currentProps = ORM::getProps($currentClass);
-                    $relatedEntity = $currentProps['props'][$variableName]['type'];
-
+                    $selectedProp = $currentProps['props'][$variableName];
                     $primarykey = 'get' . $currentProps['primaryKey'];
+                    $list = null;
 
-                    $relatedProps = ORM::getProps($relatedEntity);
+                    if ($selectedProp['relationType'] == 'many_to_many') {
+                        $mapping = $selectedProp['mapping'];
+                        $mappingEntity = $mapping['type'];
+                        $param = [
+                            'where' => [
+                                [$mapping['foreignKey'], '=', $this->$primarykey()]
+                            ]
+                        ];
+                        $mappingList = (new Repository($mappingEntity))->collect($param);
 
-                    $currentClassIndex = count($arrClass) - 1;
-                    $foreignKey = $relatedProps['props'][$arrClass[$currentClassIndex]]['foreignKey'];
+                        if(count($mappingList->getAssociatedKey()) > 0){
+                            $relatedEntity = $selectedProp['type'];
+                            $relatedProps = ORM::getProps($relatedEntity);
 
-                    $param = [
-                        'where' => [
-                             [ $foreignKey, '=',  $this->$primarykey() ]
-                        ]
-                    ];
-                    $list = (new Repository($relatedEntity))->collect($param);
+                            $mainKey = $mapping['mainKey'];
+                            $param = [
+                                'whereIn' => [
+                                    $relatedProps['primaryKey'] => $mappingList->getAssociatedKey()[$mainKey]
+                                ]
+                            ];
+                            $list = (new Repository($relatedEntity))->collect($param);
+                        }
+                        
+                    } else {
+                        $relatedEntity = $selectedProp['type'];
 
-                    $setFn = 'set' . $field;
-                    call_user_func_array([$this, $setFn], [$list]);
+                        $relatedProps = ORM::getProps($relatedEntity);
+
+                        $currentClassIndex = count($arrClass) - 1;
+                        $relatedKey = lcfirst($arrClass[$currentClassIndex]);
+                        $foreignKey = $relatedProps['props'][$relatedKey]['foreignKey'];
+
+                        $param = [
+                            'where' => [
+                                [$foreignKey, '=',  $this->$primarykey()]
+                            ]
+                        ];
+                        $list = (new Repository($relatedEntity))->collect($param);
+
+                    }
+
+                    if(!is_null($list)){
+                        $setFn = 'set' . $field;
+                        call_user_func_array([$this, $setFn], [$list]);
+                    }
                 } else {
                     $dataExist = call_user_func_array([$this, $name], $arguments);
 

@@ -63,7 +63,7 @@ class ORM
                     if (!$prop['isEntity']) {
                         $columns[] = $prop['field'];
                     } else {
-                        if ($prop['relationType'] != 'many_to_one') {
+                        if ($prop['relationType'] != 'many_to_one' && $prop['relationType'] != 'many_to_many') {
                             $columns[] = $prop['foreignKey'];
                         }
                     }
