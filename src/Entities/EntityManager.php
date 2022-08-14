@@ -4,8 +4,6 @@ namespace LaravelOrm\Entities;
 
 use LaravelOrm\Interfaces\IEntity;
 use Illuminate\Database\Query\Builder;
-use CodeIgniter\Database\BaseConnection;
-use DateTime;
 use Illuminate\Support\Facades\DB;
 
 class EntityManager
@@ -36,15 +34,6 @@ class EntityManager
      */
     protected string $primaryKey;
 
-
-    /**
-     * @var array $reservedField
-     */
-    protected array $reservedField = [
-        'created_at',
-        'updated_at'
-    ];
-
     public function __construct()
     {
 
@@ -71,7 +60,7 @@ class EntityManager
      */
     public function beginTransaction()
     {
-        $this->db->transStart();
+       DB::beginTransaction();
     }
 
     /**
@@ -81,7 +70,7 @@ class EntityManager
      */
     public function rollback()
     {
-        $this->db->rollback();
+        DB::rollBack();
     }
 
     /**
@@ -91,7 +80,7 @@ class EntityManager
      */
     public function commit()
     {
-        $this->db->commit();
+        DB::commit();
     }
 
     /**
@@ -174,41 +163,6 @@ class EntityManager
      */
     private function createArray()
     {
-        $entityAsArray = [];
-        $props = $this->entity->getProps();
-        foreach ($props as $key => $prop) {
-            $getFunction = 'get' . ucfirst($key);
-            $primaryKey = 'get' . ucfirst($this->primaryKey);
-            $field = $prop['field'];
-            if (!$prop['isEntity']) {
-                if (strtolower($prop['type']) != 'datetime') {
-                    $entityAsArray[$field] = $this->entity->$getFunction();
-                } else {
-                    if (in_array($field, $this->reservedField)) {
-                        $setDate = 'set' .  $key;
-                        $date = new DateTime();
-                        if (empty($this->entity->$primaryKey()) && $field == 'created_at') {
-                            $this->entity->$setDate($date);
-                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
-                        }
-
-                        if (!empty($this->entity->$primaryKey()) && $field == 'updated_at') {
-                            $this->entity->$setDate($date);
-                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
-                        }
-                    } else {
-                        $entityAsArray[$field] = $this->entity->$getFunction()->format('Y-m-d h:i:s');
-                    }
-                }
-            } else {
-                if (isset($prop['foreignKey'])) {
-                    $relatedEntity = ORM::getProps($prop['type']);
-                    $relatedPrimaryKey = $relatedEntity['primaryKey'];
-                    $getPrimaryKey = 'get' . $relatedPrimaryKey;
-                    $entityAsArray[$prop['foreignKey']] = $this->entity->$getFunction()->$getPrimaryKey();
-                }
-            }
-        }
-        return $entityAsArray;
+        return $this->entity->toArray();
     }
 }

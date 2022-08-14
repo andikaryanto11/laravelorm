@@ -3,6 +3,7 @@
 namespace LaravelOrm\Entities;
 
 use App\Controllers\Admin\Mpayment;
+use DateTime;
 use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
 use LaravelOrm\Entities\EntityConstraint;
@@ -10,6 +11,16 @@ use ReflectionClass;
 
 class Entity implements IEntity
 {
+
+    /**
+     * @var array $reservedField
+     */
+    protected array $reservedField = [
+        'created_at',
+        'updated_at'
+    ];
+
+
     /**
      *
      * @var array
@@ -54,6 +65,69 @@ class Entity implements IEntity
         return $this->props['table'];
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array $data
+     * @return void
+     */
+    public function hydrate($data)
+    {
+        foreach ($this->getProps() as $key => $value) {
+            if(key_exists($value['field'], $data)){
+                $fn = 'set' . ucfirst($key);
+                $newValue = $data[$value['field']];
+                $this->$fn($newValue);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Create array object to persist
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $entityAsArray = [];
+        $props = $this->getProps();
+        foreach ($props as $key => $prop) {
+            $getFunction = 'get' . ucfirst($key);
+            $primaryKey = 'get' . ucfirst($this->getPrimaryKeyName());
+            $field = $prop['field'];
+            if (!$prop['isEntity']) {
+                if (strtolower($prop['type']) != 'datetime') {
+                    $entityAsArray[$field] = $this->$getFunction();
+                } else {
+                    if (in_array($field, $this->reservedField)) {
+                        $setDate = 'set' .  $key;
+                        $date = new DateTime();
+                        if (empty($this->$primaryKey()) && $field == 'created_at') {
+                            $this->$setDate($date);
+                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
+                        }
+
+                        if (!empty($this->$primaryKey()) && $field == 'updated_at') {
+                            $this->$setDate($date);
+                            $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
+                        }
+                    } else {
+                        $entityAsArray[$field] = $this->$getFunction()->format('Y-m-d h:i:s');
+                    }
+                }
+            } else {
+                if (isset($prop['foreignKey'])) {
+                    $relatedEntity = ORM::getProps($prop['type']);
+                    $relatedPrimaryKey = $relatedEntity['primaryKey'];
+                    $getPrimaryKey = 'get' . $relatedPrimaryKey;
+                    $entityAsArray[$prop['foreignKey']] = $this->$getFunction()->$getPrimaryKey();
+                }
+            }
+        }
+        return $entityAsArray;
+    }
+
     public function __call($name, $arguments)
     {
         $method = substr($name, 0, 3);
@@ -92,7 +166,7 @@ class Entity implements IEntity
                         ];
                         $mappingList = (new Repository($mappingEntity))->collect($param);
 
-                        if(count($mappingList->getAssociatedKey()) > 0){
+                        if (count($mappingList->getAssociatedKey()) > 0) {
                             $relatedEntity = $selectedProp['type'];
                             $relatedProps = ORM::getProps($relatedEntity);
 
@@ -104,7 +178,6 @@ class Entity implements IEntity
                             ];
                             $list = (new Repository($relatedEntity))->collect($param);
                         }
-                        
                     } else {
                         $relatedEntity = $selectedProp['type'];
 
@@ -120,10 +193,9 @@ class Entity implements IEntity
                             ]
                         ];
                         $list = (new Repository($relatedEntity))->collect($param);
-
                     }
 
-                    if(!is_null($list)){
+                    if (!is_null($list)) {
                         $setFn = 'set' . $field;
                         call_user_func_array([$this, $setFn], [$list]);
                     }
