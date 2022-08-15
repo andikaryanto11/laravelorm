@@ -84,6 +84,13 @@ class Entity implements IEntity
     }
 
     /**
+     * Executed before persistence to database
+     */
+    protected function beforePersist(){
+
+    }
+
+    /**
      * Create array object to persist
      *
      * @return array
