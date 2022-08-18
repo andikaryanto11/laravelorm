@@ -2,11 +2,12 @@
 
 namespace LaravelOrm\Entities;
 
-use App\Controllers\Admin\Mpayment;
 use DateTime;
+use Exception;
+use Illuminate\Support\Facades\Validator;
+use LaravelOrm\Exception\ValidationException;
 use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
-use LaravelOrm\Entities\EntityConstraint;
 use ReflectionClass;
 
 class Entity implements IEntity
@@ -19,6 +20,13 @@ class Entity implements IEntity
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * Rules
+     *
+     * @var array
+     */
+    protected array $rules = [];
 
 
     /**
@@ -74,20 +82,13 @@ class Entity implements IEntity
     public function hydrate($data)
     {
         foreach ($this->getProps() as $key => $value) {
-            if(key_exists($value['field'], $data)){
+            if(key_exists($value['field'], $data) && !empty($data[$value['field']])){
                 $fn = 'set' . ucfirst($key);
                 $newValue = $data[$value['field']];
                 $this->$fn($newValue);
             }
         }
         return $this;
-    }
-
-    /**
-     * Executed before persistence to database
-     */
-    protected function beforePersist(){
-
     }
 
     /**
@@ -99,7 +100,13 @@ class Entity implements IEntity
     {
         $entityAsArray = [];
         $props = $this->getProps();
+
+        if(!empty($this->rules)){
+            $this->rules = [];
+        }
+
         foreach ($props as $key => $prop) {
+            $this->addRules($prop);
             $getFunction = 'get' . ucfirst($key);
             $primaryKey = 'get' . ucfirst($this->getPrimaryKeyName());
             $field = $prop['field'];
@@ -133,6 +140,32 @@ class Entity implements IEntity
             }
         }
         return $entityAsArray;
+    }
+
+    /**
+     * Validate the entity
+     *
+     * @return void
+     */
+    public function validate(){
+        $validator = Validator::make($this->toArray(), $this->rules);
+        if($validator->fails()){
+            throw new ValidationException($validator->errors()->all()[0]);
+        }
+
+    }
+
+    /**
+     * add rule
+     *
+     * @param array $prop
+     * @return void
+     */
+    private function addRules($prop){
+        if(isset($prop['rule'])){
+            $this->rules[$prop['field']] = $prop['rule'];
+        }
+        return $this;
     }
 
     public function __call($name, $arguments)

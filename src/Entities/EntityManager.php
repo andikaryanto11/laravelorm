@@ -91,7 +91,6 @@ class EntityManager
     public function persist($entity)
     {
         $this->setEntity($entity);
-        $this->entity->beforePersist();
         $primaryKey = 'get' . $this->primaryKey;
         $primaryValue = $this->entity->$primaryKey();
         if (empty($primaryValue) || is_null($primaryValue)) {
