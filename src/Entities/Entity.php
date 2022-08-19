@@ -18,7 +18,9 @@ class Entity implements IEntity
      */
     protected array $reservedField = [
         'created_at',
-        'updated_at'
+        'created_by',
+        'updated_at',
+        'updated_by'
     ];
 
     /**
@@ -82,7 +84,7 @@ class Entity implements IEntity
     public function hydrate($data)
     {
         foreach ($this->getProps() as $key => $value) {
-            if(key_exists($value['field'], $data) && !empty($data[$value['field']])){
+            if(key_exists($value['field'], $data) && !in_array($value['field'], $this->reservedField)){
                 $fn = 'set' . ucfirst($key);
                 $newValue = $data[$value['field']];
                 $this->$fn($newValue);
