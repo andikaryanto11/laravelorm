@@ -145,6 +145,15 @@ class Entity implements IEntity
     }
 
     /**
+     * Executed before persistence occur
+     *
+     * @return void
+     */
+    protected function beforePersist(){
+
+    }
+
+    /**
      * Validate the entity
      *
      * @return void
