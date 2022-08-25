@@ -4,6 +4,8 @@ namespace LaravelOrm\Entities;
 
 use LaravelOrm\Interfaces\IEntity;
 use Exception;
+use LaravelOrm\Exception\DatabaseException;
+use PDOException;
 
 class EntityUnit
 {

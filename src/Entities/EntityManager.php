@@ -92,7 +92,7 @@ class EntityManager
     {
         $entity->beforePersist();
         $this->setEntity($entity);
-        $primaryKey = 'get' . $this->primaryKey;
+        $primaryKey = 'get' . ucfirst($this->primaryKey);
         $primaryValue = $this->entity->$primaryKey();
         if (empty($primaryValue) || is_null($primaryValue)) {
             return $this->insert();
