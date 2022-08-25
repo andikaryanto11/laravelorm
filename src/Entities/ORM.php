@@ -37,7 +37,7 @@ class ORM
                     if (!$prop['isEntity']) {
                         $columns[] = $prop['field'];
                     } else {
-                        if ($prop['relationType'] != 'many_to_one') {
+                        if ($prop['relationType'] != 'many_to_one' && $prop['relationType'] != 'many_to_many') {
                             $columns[] = $prop['foreignKey'];
                         }
                     }
@@ -61,10 +61,10 @@ class ORM
             if ($entityName == $key) {
                 foreach ($item['props'] as $propKey => $prop) {
                     if (!$prop['isEntity']) {
-                        $columns[] = $prop['field'];
+                        $columns[] = $item['table'] . '.' . $prop['field'];
                     } else {
                         if ($prop['relationType'] != 'many_to_one' && $prop['relationType'] != 'many_to_many') {
-                            $columns[] = $prop['foreignKey'];
+                            $columns[] = $item['table'] . '.' . $prop['foreignKey'];
                         }
                     }
                 }

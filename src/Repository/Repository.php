@@ -9,6 +9,7 @@ use LaravelOrm\Interfaces\IRepository;
 use Illuminate\Database\Query\Builder;
 use DateTime;
 use Illuminate\Support\Facades\DB;
+use LaravelOrm\Exception\DatabaseException;
 
 class Repository implements IRepository
 {
@@ -211,11 +212,20 @@ class Repository implements IRepository
             if ($join) {
                 foreach ($join as $key => $vv) {
                     foreach ($vv as $v) {
-                        $type = "";
+                        $type = "inner";
                         if (isset($v['type'])) {
                             $type = $v['type'];
                         }
-                        $this->builder->join($key, $v['key'], $type);
+
+                        if(strtoupper($type) == 'INNER'){
+                            $this->builder->join($key, ...$v['key']);
+                        }
+                        if(strtoupper($type) == 'LEFT'){
+                            $this->builder->leftJoin($key, ...$v['key']);
+                        }
+                        if(strtoupper($type) == 'RIGHT'){
+                            $this->builder->rightJoin($key, ...$v['key']);
+                        }
                     }
                 }
             }
@@ -311,7 +321,6 @@ class Repository implements IRepository
         } else {
             $finalResults = $results;
         }
-
         return $finalResults;
     }
 

@@ -5,9 +5,12 @@ namespace LaravelOrm\Entities;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use LaravelOrm\Exception\DatabaseException;
 use LaravelOrm\Exception\ValidationException;
 use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
+use Mockery\Generator\StringManipulation\Pass\Pass;
 use ReflectionClass;
 
 class Entity implements IEntity
@@ -84,7 +87,7 @@ class Entity implements IEntity
     public function hydrate($data)
     {
         foreach ($this->getProps() as $key => $value) {
-            if(key_exists($value['field'], $data) && !in_array($value['field'], $this->reservedField)){
+            if (key_exists($value['field'], $data) && !in_array($value['field'], $this->reservedField)) {
                 $fn = 'set' . ucfirst($key);
                 $newValue = $data[$value['field']];
                 $this->$fn($newValue);
@@ -103,7 +106,7 @@ class Entity implements IEntity
         $entityAsArray = [];
         $props = $this->getProps();
 
-        if(!empty($this->rules)){
+        if (!empty($this->rules)) {
             $this->rules = [];
         }
 
@@ -133,11 +136,13 @@ class Entity implements IEntity
                     }
                 }
             } else {
-                if (isset($prop['foreignKey'])) {
+                if (isset($prop['foreignKey'])) {   
                     $relatedEntity = ORM::getProps($prop['type']);
                     $relatedPrimaryKey = $relatedEntity['primaryKey'];
-                    $getPrimaryKey = 'get' . $relatedPrimaryKey;
-                    $entityAsArray[$prop['foreignKey']] = $this->$getFunction()->$getPrimaryKey();
+                    $getPrimaryKey = 'get' . ucfirst($relatedPrimaryKey);
+                    if (!is_null($this->$getFunction())) {
+                        $entityAsArray[$prop['foreignKey']] = $this->$getFunction()->$getPrimaryKey();
+                    }
                 }
             }
         }
@@ -149,8 +154,8 @@ class Entity implements IEntity
      *
      * @return void
      */
-    protected function beforePersist(){
-
+    protected function beforePersist()
+    {
     }
 
     /**
@@ -158,12 +163,12 @@ class Entity implements IEntity
      *
      * @return void
      */
-    public function validate(){
+    public function validate()
+    {
         $validator = Validator::make($this->toArray(), $this->rules);
-        if($validator->fails()){
+        if ($validator->fails()) {
             throw new ValidationException($validator->errors()->all()[0]);
         }
-
     }
 
     /**
@@ -172,9 +177,19 @@ class Entity implements IEntity
      * @param array $prop
      * @return void
      */
-    private function addRules($prop){
-        if(isset($prop['rule'])){
-            $this->rules[$prop['field']] = $prop['rule'];
+    private function addRules($prop)
+    {
+        if (isset($prop['rule'])) {
+            $rules = explode('|', $prop['rule']);
+            $fieldRules = [];
+            foreach($rules as $rule){
+                if($rule == 'password'){
+                    $fieldRules[] = Password::min(8)->numbers()->mixedCase()->symbols();
+                } else {
+                    $fieldRules[] = $rule;
+                }
+            }
+            $this->rules[$prop['field']] = $fieldRules;
         }
         return $this;
     }
