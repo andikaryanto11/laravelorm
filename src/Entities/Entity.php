@@ -132,7 +132,9 @@ class Entity implements IEntity
                             $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
                         }
                     } else {
-                        $entityAsArray[$field] = $this->$getFunction()->format('Y-m-d h:i:s');
+                        if(!empty($this->$getFunction())){
+                            $entityAsArray[$field] = $this->$getFunction()->format('Y-m-d h:i:s');
+                        }
                     }
                 }
             } else {
