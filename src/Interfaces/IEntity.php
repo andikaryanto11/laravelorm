@@ -24,4 +24,11 @@ interface IEntity
      * @return array
      */
     public function getProps();
+
+    /**
+     * Validate entity
+     *
+     * @return void
+     */
+    public function validate();
 }

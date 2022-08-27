@@ -88,7 +88,7 @@ class ORM
                 $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
                 if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
                     $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
-                    if($extension == 'yml'){
+                    if ($extension == 'yml') {
                         $fileRead = Yaml::parseFile($pathFile);
                         foreach ($fileRead as $key => $allProps) {
                             $result[$key] = $allProps;

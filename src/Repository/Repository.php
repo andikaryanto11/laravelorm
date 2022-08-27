@@ -10,10 +10,10 @@ use Illuminate\Database\Query\Builder;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 use LaravelOrm\Exception\DatabaseException;
+use LaravelOrm\Interfaces\IEntity;
 
 class Repository implements IRepository
 {
-
     /**
      *
      *
@@ -217,13 +217,13 @@ class Repository implements IRepository
                             $type = $v['type'];
                         }
 
-                        if(strtoupper($type) == 'INNER'){
+                        if (strtoupper($type) == 'INNER') {
                             $this->builder->join($key, ...$v['key']);
                         }
-                        if(strtoupper($type) == 'LEFT'){
+                        if (strtoupper($type) == 'LEFT') {
                             $this->builder->leftJoin($key, ...$v['key']);
                         }
-                        if(strtoupper($type) == 'RIGHT'){
+                        if (strtoupper($type) == 'RIGHT') {
                             $this->builder->rightJoin($key, ...$v['key']);
                         }
                     }
@@ -405,5 +405,10 @@ class Repository implements IRepository
     {
         $datatables = new RepositoryDatatables($filter, $returnEntity, $useIndex, $this);
         return $datatables;
+    }
+
+    public function validateEntity(IEntity $entity)
+    {
+        $entity->validate();
     }
 }
