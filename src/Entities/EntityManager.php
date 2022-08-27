@@ -36,7 +36,6 @@ class EntityManager
 
     public function __construct()
     {
-
     }
 
     /**
@@ -60,7 +59,7 @@ class EntityManager
      */
     public function beginTransaction()
     {
-       DB::beginTransaction();
+        DB::beginTransaction();
     }
 
     /**
@@ -86,10 +85,16 @@ class EntityManager
     /**
      * Persist data to storage
      *
+     * @param mixed $entity
+     * @param bool $needValidate - validate entity that will be persisted
      * @return bool
      */
-    public function persist($entity)
+    public function persist($entity, bool $needValidate = true)
     {
+        if ($needValidate) {
+            $entity->validate();
+        }
+
         $entity->beforePersist();
         $this->setEntity($entity);
         $primaryKey = 'get' . ucfirst($this->primaryKey);

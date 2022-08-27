@@ -10,15 +10,20 @@ use PDOException;
 class EntityUnit
 {
     /**
-     * Prepare entity that will be persisted. Will persisted after entity unit flush
+     * Prepare entity that will be validated and persisted.
+     * Will persisted after entity unit flush
+     *
+     * @see entity IEntity->validate()
      *
      * @param IEntity $entity
+     * @param bool $needValidate - validate entity that will be persisted
      * @return EntityUnit
      */
-    public function preparePersistence(IEntity $entity)
+    public function preparePersistence(IEntity $entity, bool $needValidate = true)
     {
-        $entityUnit = EntityScope::getInstance();
-        $entityUnit->addEntity(EntityScope::PERFORM_ADD_UPDATE, $entity);
+
+        $entityScope = EntityScope::getInstance();
+        $entityScope->addEntity(EntityScope::PERFORM_ADD_UPDATE, $entity, $needValidate);
         return $this;
     }
 
@@ -30,8 +35,8 @@ class EntityUnit
      */
     public function prepareRemove(IEntity $entity)
     {
-        $entityUnit = EntityScope::getInstance();
-        $entityUnit->addEntity(EntityScope::PERFORM_DELETE, $entity);
+        $entityScope = EntityScope::getInstance();
+        $entityScope->addEntity(EntityScope::PERFORM_DELETE, $entity);
         return $this;
     }
 
@@ -51,7 +56,7 @@ class EntityUnit
             $entityScope->sort();
             foreach ($entityScope->getEntities() as $value) {
                 if ($value['perform'] == EntityScope::PERFORM_ADD_UPDATE) {
-                    $entityManager->persist($value['entity']);
+                    $entityManager->persist($value['entity'], $value['needValidate']);
                 } elseif ($value['perform'] == EntityScope::PERFORM_DELETE) {
                     $entityManager->remove($value['entity']);
                 }

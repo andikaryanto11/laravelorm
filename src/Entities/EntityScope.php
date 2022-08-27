@@ -44,9 +44,10 @@ class EntityScope
      *
      * @param string $perfom
      * @param IEntity $entity
+     * @param bool $needValidate - validate entity that will be persisted
      * @return void
      */
-    public function addEntity(string $perfom, IEntity $entity)
+    public function addEntity(string $perfom, IEntity $entity, $needValidate = true)
     {
         $isEntityExist = false;
         if (isset($this->entities)) {
@@ -61,7 +62,8 @@ class EntityScope
         if (!$isEntityExist) {
             $this->entities[] = [
                 'perform' => $perfom,
-                'entity' => $entity
+                'entity' => $entity,
+                'needValidate' => $needValidate
             ];
         }
     }

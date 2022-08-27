@@ -15,7 +15,6 @@ use ReflectionClass;
 
 class Entity implements IEntity
 {
-
     /**
      * @var array $reservedField
      */
@@ -132,13 +131,13 @@ class Entity implements IEntity
                             $entityAsArray[$field] = $date->format('Y-m-d h:i:s');
                         }
                     } else {
-                        if(!empty($this->$getFunction())){
+                        if (!empty($this->$getFunction())) {
                             $entityAsArray[$field] = $this->$getFunction()->format('Y-m-d h:i:s');
                         }
                     }
                 }
             } else {
-                if (isset($prop['foreignKey'])) {   
+                if (isset($prop['foreignKey'])) {
                     $relatedEntity = ORM::getProps($prop['type']);
                     $relatedPrimaryKey = $relatedEntity['primaryKey'];
                     $getPrimaryKey = 'get' . ucfirst($relatedPrimaryKey);
@@ -184,8 +183,8 @@ class Entity implements IEntity
         if (isset($prop['rule'])) {
             $rules = explode('|', $prop['rule']);
             $fieldRules = [];
-            foreach($rules as $rule){
-                if($rule == 'password'){
+            foreach ($rules as $rule) {
+                if ($rule == 'password') {
                     $fieldRules[] = Password::min(8)->numbers()->mixedCase()->symbols();
                 } else {
                     $fieldRules[] = $rule;
