@@ -81,7 +81,7 @@ class ORM
     public static function parse()
     {
         $result = array();
-        $dir = app('config')->get('common-config')['entity']['mapping']['app'];
+        $dir = config()->get('common-config')['entity']['mapping']['app'];
         $cdir = scandir($dir);
         foreach ($cdir as $key => $value) {
             if (!in_array($value, array(".", ".."))) {
