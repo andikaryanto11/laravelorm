@@ -151,7 +151,7 @@ class EntityManager
     {
 
         $this->setEntity($entity);
-        $getPrimaryKey = "get" . $this->primaryKey;
+        $getPrimaryKey = "get" . ucfirst($this->primaryKey);
         $this->builder->where($this->primaryKey, $this->entity->{$getPrimaryKey}());
         if (!$this->builder->delete()) {
             return false;
