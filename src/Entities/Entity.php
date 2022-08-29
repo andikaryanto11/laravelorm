@@ -2,6 +2,7 @@
 
 namespace LaravelOrm\Entities;
 
+use BadMethodCallException;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Validator;
@@ -137,7 +138,7 @@ class Entity implements IEntity
                     }
                 }
             } else {
-                if (isset($prop['foreignKey'])) {
+                if (isset($prop['foreignKey']) && $prop['relationType'] != 'many_to_many') {
                     $relatedEntity = ORM::getProps($prop['type']);
                     $relatedPrimaryKey = $relatedEntity['primaryKey'];
                     $getPrimaryKey = 'get' . ucfirst($relatedPrimaryKey);
@@ -180,7 +181,11 @@ class Entity implements IEntity
      */
     private function addRules($prop)
     {
-        if (isset($prop['rule'])) {
+        if (
+            isset($prop['rule']) &&
+            isset($prop['relationType']) &&
+            $prop['relationType'] != 'many_to_many'
+        ) {
             $rules = explode('|', $prop['rule']);
             $fieldRules = [];
             foreach ($rules as $rule) {
@@ -197,6 +202,10 @@ class Entity implements IEntity
 
     public function __call($name, $arguments)
     {
+        if (!method_exists($this, $name)) {
+            throw new BadMethodCallException('" Failed to invoke ' . $name . '" that was not defined in class ' . get_class($this));
+        }
+
         $method = substr($name, 0, 3);
         if ($method == 'get') {
             $currentClass = get_class($this);
@@ -223,44 +232,44 @@ class Entity implements IEntity
                     $primarykey = 'get' . $currentProps['primaryKey'];
                     $list = null;
 
-                    if ($selectedProp['relationType'] == 'many_to_many') {
-                        $mapping = $selectedProp['mapping'];
-                        $mappingEntity = $mapping['type'];
-                        $param = [
-                            'where' => [
-                                [$mapping['foreignKey'], '=', $this->$primarykey()]
-                            ]
-                        ];
-                        $mappingList = (new Repository($mappingEntity))->collect($param);
+                    // if ($selectedProp['relationType'] == 'many_to_many') {
+                    //     $mapping = $selectedProp['mapping'];
+                    //     $mappingEntity = $mapping['type'];
+                    //     $param = [
+                    //         'where' => [
+                    //             [$mapping['foreignKey'], '=', $this->$primarykey()]
+                    //         ]
+                    //     ];
+                    //     $mappingList = (new Repository($mappingEntity))->collect($param);
 
-                        if (count($mappingList->getAssociatedKey()) > 0) {
-                            $relatedEntity = $selectedProp['type'];
-                            $relatedProps = ORM::getProps($relatedEntity);
+                    //     if (count($mappingList->getAssociatedKey()) > 0) {
+                    //         $relatedEntity = $selectedProp['type'];
+                    //         $relatedProps = ORM::getProps($relatedEntity);
 
-                            $mainKey = $mapping['mainKey'];
-                            $param = [
-                                'whereIn' => [
-                                    $relatedProps['primaryKey'] => $mappingList->getAssociatedKey()[$mainKey]
-                                ]
-                            ];
-                            $list = (new Repository($relatedEntity))->collect($param);
-                        }
-                    } else {
-                        $relatedEntity = $selectedProp['type'];
+                    //         $mainKey = $mapping['mainKey'];
+                    //         $param = [
+                    //             'whereIn' => [
+                    //                 $relatedProps['primaryKey'] => $mappingList->getAssociatedKey()[$mainKey]
+                    //             ]
+                    //         ];
+                    //         $list = (new Repository($relatedEntity))->collect($param);
+                    //     }
+                    // } else {
+                    $relatedEntity = $selectedProp['type'];
 
-                        $relatedProps = ORM::getProps($relatedEntity);
+                    $relatedProps = ORM::getProps($relatedEntity);
 
-                        $currentClassIndex = count($arrClass) - 1;
-                        $relatedKey = lcfirst($arrClass[$currentClassIndex]);
-                        $foreignKey = $relatedProps['props'][$relatedKey]['foreignKey'];
+                    $currentClassIndex = count($arrClass) - 1;
+                    $relatedKey = lcfirst($arrClass[$currentClassIndex]);
+                    $foreignKey = $relatedProps['props'][$relatedKey]['foreignKey'];
 
-                        $param = [
-                            'where' => [
-                                [$foreignKey, '=',  $this->$primarykey()]
-                            ]
-                        ];
-                        $list = (new Repository($relatedEntity))->collect($param);
-                    }
+                    $param = [
+                        'where' => [
+                            [$foreignKey, '=',  $this->$primarykey()]
+                        ]
+                    ];
+                    $list = (new Repository($relatedEntity))->collect($param);
+                    // }
 
                     if (!is_null($list)) {
                         $setFn = 'set' . $field;

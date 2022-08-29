@@ -140,7 +140,7 @@ class Repository implements IRepository
         if (empty($result)) {
             throw new EntityException('Data not found');
         }
-        return $result[0];
+        return $result;
     }
 
     /**
@@ -354,7 +354,7 @@ class Repository implements IRepository
                         }
                     }
                 } else {
-                    if (isset($value['foreignKey'])) {
+                    if (isset($value['foreignKey']) && $value['relationType'] != 'many_to_many') {
                         $foreignKey = $value['foreignKey'];
                         if (!is_null($result->$foreignKey)) {
                             $associated[$value['foreignKey']][] = $result->$foreignKey;
