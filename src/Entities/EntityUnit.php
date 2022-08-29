@@ -4,7 +4,7 @@ namespace LaravelOrm\Entities;
 
 use LaravelOrm\Interfaces\IEntity;
 use Exception;
-use LaravelOrm\Exception\DatabaseException;
+use LaravelOrm\Exception\ValidationException;
 use PDOException;
 
 class EntityUnit
@@ -17,10 +17,14 @@ class EntityUnit
      *
      * @param IEntity $entity
      * @param bool $needValidate - validate entity that will be persisted
+     * @throws ValidationException
      * @return EntityUnit
      */
     public function preparePersistence(IEntity $entity, bool $needValidate = true)
     {
+        if ($needValidate) {
+            $entity->validate();
+        }
 
         $entityScope = EntityScope::getInstance();
         $entityScope->addEntity(EntityScope::PERFORM_ADD_UPDATE, $entity, $needValidate);
