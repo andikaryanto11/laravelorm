@@ -4,14 +4,11 @@ namespace LaravelOrm\Entities;
 
 use BadMethodCallException;
 use DateTime;
-use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
-use LaravelOrm\Exception\DatabaseException;
 use LaravelOrm\Exception\ValidationException;
 use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
-use Mockery\Generator\StringManipulation\Pass\Pass;
 use ReflectionClass;
 
 class Entity implements IEntity
@@ -181,21 +178,23 @@ class Entity implements IEntity
      */
     private function addRules($prop)
     {
-        if (
-            isset($prop['rule']) &&
-            isset($prop['relationType']) &&
-            $prop['relationType'] != 'many_to_many'
-        ) {
-            $rules = explode('|', $prop['rule']);
-            $fieldRules = [];
-            foreach ($rules as $rule) {
-                if ($rule == 'password') {
-                    $fieldRules[] = Password::min(8)->numbers()->mixedCase()->symbols();
-                } else {
-                    $fieldRules[] = $rule;
+        if (isset($prop['rule'])) {
+            if (
+                !isset($prop['relationType']) || (isset($prop['relationType']) &&
+                    $prop['relationType'] != 'many_to_many'
+                )
+            ) {
+                $rules = explode('|', $prop['rule']);
+                $fieldRules = [];
+                foreach ($rules as $rule) {
+                    if ($rule == 'password') {
+                        $fieldRules[] = Password::min(8)->numbers()->mixedCase()->symbols();
+                    } else {
+                        $fieldRules[] = $rule;
+                    }
                 }
+                $this->rules[$prop['field']] = $fieldRules;
             }
-            $this->rules[$prop['field']] = $fieldRules;
         }
         return $this;
     }
