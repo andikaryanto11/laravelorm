@@ -325,7 +325,7 @@ class Repository implements IRepository
     }
 
     /**
-     * convert all result to intended entiry
+     * convert all result to intended entity
      *
      * @param stdClass[] $results
      * @return array;
@@ -384,6 +384,21 @@ class Repository implements IRepository
         $associated = [];
         $result = $this->fetch($filter, $columns, false, $associated);
         $entityList = new EntityList($result);
+        $entityList->setListOf($this->entityClass);
+        $entityList->setAssociatedKey($associated);
+        return $entityList;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param $results - results of query builder
+     * @return void
+     */
+    public function toEntities($results){
+        $associated = [];
+        $entities = $this->setToEntity($results, $associated);
+        $entityList = new EntityList($entities);
         $entityList->setListOf($this->entityClass);
         $entityList->setAssociatedKey($associated);
         return $entityList;
