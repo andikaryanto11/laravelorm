@@ -8,9 +8,32 @@ use LaravelOrm\Entities\EntityList;
 use LaravelOrm\Entities\ORM;
 use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Grammars\Grammar;
+use Illuminate\Database\Query\Grammars\MySqlGrammar;
+use Illuminate\Database\Query\Processors\Processor;
 
 abstract class Query extends Builder
 {
+
+    /**
+     * Create a new query builder instance.
+     *
+     * @param  \Illuminate\Database\ConnectionInterface  $connection
+     * @param  \Illuminate\Database\Query\Grammars\Grammar|null  $grammar
+     * @param  \Illuminate\Database\Query\Processors\Processor|null  $processor
+     * @return void
+     */
+    public function __construct(ConnectionInterface $connection,
+                                Processor $processor = null)
+    {
+        $grammar = $connection->query()->getGrammar();
+        parent::__construct($connection, $grammar, $processor);
+        $columns =  ORM::getSelectColumnsAs($this->identity());
+        $table = $this->getIdentityTable();
+        $this->from($table)->select($columns);
+    }
+
     /**
      * Undocumented function
      *
@@ -44,11 +67,7 @@ abstract class Query extends Builder
      */
     public function getIterator()
     {
-        $table = $this->getIdentityTable();
-        $columns =  ORM::getSelectColumns($this->identity());
-
-        $results = $this->from($table)->select($columns)->get();
-
+        $results = $this->get();
         $repository = new Repository($this->identity());
         $entities = $repository->toEntities($results);
         return $entities;

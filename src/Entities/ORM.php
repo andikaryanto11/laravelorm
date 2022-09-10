@@ -47,7 +47,6 @@ class ORM
         }
     }
 
-
     /**
      * Get columns appended with table name
      * @param string $entityName
@@ -65,6 +64,31 @@ class ORM
                     } else {
                         if ($prop['relationType'] != 'many_to_one' && $prop['relationType'] != 'many_to_many') {
                             $columns[] = $item['table'] . '.' . $prop['foreignKey'];
+                        }
+                    }
+                }
+                return $columns;
+            }
+        }
+    }
+
+    /**
+     * Get columns appended with table name
+     * @param string $entityName
+     * @return array
+     */
+    public static function getSelectColumnsAs(string $entityName)
+    {
+        $parse = self::parse();
+        $columns = [];
+        foreach ($parse as $key => $item) {
+            if ($entityName == $key) {
+                foreach ($item['props'] as $propKey => $prop) {
+                    if (!$prop['isEntity']) {
+                        $columns[$prop['field']] = $item['table'] . '.' . $prop['field'];
+                    } else {
+                        if ($prop['relationType'] != 'many_to_one' && $prop['relationType'] != 'many_to_many') {
+                            $columns[$prop['field']] = $item['table'] . '.' . $prop['foreignKey'];
                         }
                     }
                 }
