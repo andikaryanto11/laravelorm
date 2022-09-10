@@ -2,16 +2,11 @@
 
 namespace LaravelOrm\Queries;
 
-use Exception;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use LaravelOrm\Entities\EntityList;
 use LaravelOrm\Entities\ORM;
-use LaravelOrm\Interfaces\IEntity;
 use LaravelOrm\Repository\Repository;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Query\Grammars\Grammar;
-use Illuminate\Database\Query\Grammars\MySqlGrammar;
 use Illuminate\Database\Query\Processors\Processor;
 use LaravelOrm\Exception\DatabaseException;
 
@@ -53,10 +48,10 @@ abstract class Query extends Builder
      * Filter By Id
      *
      * @param [type] $id
-     * @return static
+     * @return self
      *
      */
-    public function whereId($id): static
+    public function whereId($id): self
     {
         $this->where($this->getIdentityTable() . '.id', '=', $id);
         return $this;
