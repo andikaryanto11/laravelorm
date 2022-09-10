@@ -395,7 +395,8 @@ class Repository implements IRepository
      * @param $results - results of query builder
      * @return void
      */
-    public function toEntities($results){
+    public function toEntities($results)
+    {
         $associated = [];
         $entities = $this->setToEntity($results, $associated);
         $entityList = new EntityList($entities);

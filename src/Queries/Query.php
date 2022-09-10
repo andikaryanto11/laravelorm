@@ -15,7 +15,6 @@ use Illuminate\Database\Query\Processors\Processor;
 
 abstract class Query extends Builder
 {
-
     /**
      * Create a new query builder instance.
      *
@@ -24,9 +23,10 @@ abstract class Query extends Builder
      * @param  \Illuminate\Database\Query\Processors\Processor|null  $processor
      * @return void
      */
-    public function __construct(ConnectionInterface $connection,
-                                Processor $processor = null)
-    {
+    public function __construct(
+        ConnectionInterface $connection,
+        Processor $processor = null
+    ) {
         $grammar = $connection->query()->getGrammar();
         parent::__construct($connection, $grammar, $processor);
         $columns =  ORM::getSelectColumnsAs($this->identity());
@@ -39,7 +39,7 @@ abstract class Query extends Builder
      *
      * @return string
      */
-    public abstract function identity();
+    abstract public function identity();
 
     public function getIdentityTable()
     {
@@ -51,8 +51,8 @@ abstract class Query extends Builder
      * Filter By Id
      *
      * @param [type] $id
-     * @return static 
-     * 
+     * @return static
+     *
      */
     public function whereId($id): static
     {
