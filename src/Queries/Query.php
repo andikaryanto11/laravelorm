@@ -2,6 +2,7 @@
 
 namespace LaravelOrm\Queries;
 
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use LaravelOrm\Entities\EntityList;
@@ -12,6 +13,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Database\Query\Grammars\MySqlGrammar;
 use Illuminate\Database\Query\Processors\Processor;
+use LaravelOrm\Exception\DatabaseException;
 
 abstract class Query extends Builder
 {
@@ -73,9 +75,32 @@ abstract class Query extends Builder
         return $entities;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @throws DatabaseException
+     * @return mixed
+     */
+    public function getFirstOrError()
+    {
+        $iterator = $this->getIterator();
+        if ($iterator->count() > 0) {
+            return $iterator->first();
+        }
+        throw new DatabaseException('No Data Found in database');
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return mixded|null
+     */
     public function getFirst()
     {
         $iterator = $this->getIterator();
-        return $iterator->first();
+        if ($iterator->count() > 0) {
+            return $iterator->first();
+        }
+        return null;
     }
 }
