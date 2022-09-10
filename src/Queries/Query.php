@@ -78,14 +78,15 @@ abstract class Query extends Builder
     /**
      * Undocumented function
      *
-     * @throws DatabaseException  
+     * @throws DatabaseException
      * @return mixed
      */
     public function getFirstOrError()
     {
         $iterator = $this->getIterator();
-        if ($iterator->count() > 0)
+        if ($iterator->count() > 0) {
             return $iterator->first();
+        }
         throw new DatabaseException('No Data Found in database');
     }
 
@@ -97,8 +98,9 @@ abstract class Query extends Builder
     public function getFirst()
     {
         $iterator = $this->getIterator();
-        if ($iterator->count() > 0)
+        if ($iterator->count() > 0) {
             return $iterator->first();
+        }
         return null;
     }
 }
