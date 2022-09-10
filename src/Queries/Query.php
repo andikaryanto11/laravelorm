@@ -93,7 +93,7 @@ abstract class Query extends Builder
     /**
      * Undocumented function
      *
-     * @return mixded|null
+     * @return mixed|null
      */
     public function getFirst()
     {
