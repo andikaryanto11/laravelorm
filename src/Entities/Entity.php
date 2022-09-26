@@ -41,7 +41,7 @@ class Entity implements IEntity
      *
      * @var array
      */
-    protected array $props;
+    protected array $props = [];
 
     /**
      * Constructor

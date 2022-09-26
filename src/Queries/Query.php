@@ -58,6 +58,19 @@ abstract class Query extends Builder
     }
 
     /**
+     * Filter By Id
+     *
+     * @param [type] $id
+     * @return self
+     *
+     */
+    public function whereIdIn(array $ids): self
+    {
+        $this->whereIn($this->getIdentityTable() . '.id', $ids);
+        return $this;
+    }
+
+    /**
      * Get EntityList instance
      *
      * @return EntityList
