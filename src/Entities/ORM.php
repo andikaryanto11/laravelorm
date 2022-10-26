@@ -105,35 +105,39 @@ class ORM
     public static function parse()
     {
         $result = array();
-        $dir = config()->get('common-config')['entity']['mapping']['app'];
-        $cdir = scandir($dir);
-        foreach ($cdir as $key => $value) {
-            if (!in_array($value, array(".", ".."))) {
-                $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
-                if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
-                    if ($extension == 'yml') {
-                        $fileRead = Yaml::parseFile($pathFile);
+        $config = config()->get('common-config');
+        if($config){
+            $dir = ['entity']['mapping']['app'];
+            $cdir = scandir($dir);
+            foreach ($cdir as $key => $value) {
+                if (!in_array($value, array(".", ".."))) {
+                    $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
+                    if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+                        $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
+                        if ($extension == 'yml') {
+                            $fileRead = Yaml::parseFile($pathFile);
+                            foreach ($fileRead as $key => $allProps) {
+                                $result[$key] = $allProps;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $dir = base_path() . '/vendor/andikaryanto11/laravelcommon/src/App/Entities/Mapping';
+            $cdir = scandir($dir);
+            foreach ($cdir as $key => $value) {
+                if (!in_array($value, array(".", ".."))) {
+                    if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+                        $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
                         foreach ($fileRead as $key => $allProps) {
                             $result[$key] = $allProps;
                         }
                     }
                 }
             }
+            return $result;
         }
-
-        $dir = base_path() . '/vendor/andikaryanto11/laravelcommon/src/App/Entities/Mapping';
-        $cdir = scandir($dir);
-        foreach ($cdir as $key => $value) {
-            if (!in_array($value, array(".", ".."))) {
-                if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
-                    foreach ($fileRead as $key => $allProps) {
-                        $result[$key] = $allProps;
-                    }
-                }
-            }
-        }
-        return $result;
+        return [];
     }
 }
