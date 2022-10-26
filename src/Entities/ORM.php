@@ -105,17 +105,20 @@ class ORM
     public static function parse()
     {
         $result = array();
-        $dir = config()->get('common-config')['entity']['mapping']['app'];
-        $cdir = scandir($dir);
-        foreach ($cdir as $key => $value) {
-            if (!in_array($value, array(".", ".."))) {
-                $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
-                if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
-                    if ($extension == 'yml') {
-                        $fileRead = Yaml::parseFile($pathFile);
-                        foreach ($fileRead as $key => $allProps) {
-                            $result[$key] = $allProps;
+        $config = config()->get('common-config');
+        if($config){
+            $dir = $config['entity']['mapping']['app'];
+            $cdir = scandir($dir);
+            foreach ($cdir as $key => $value) {
+                if (!in_array($value, array(".", ".."))) {
+                    $pathFile = $dir . DIRECTORY_SEPARATOR . $value;
+                    if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+                        $extension = pathinfo($pathFile, PATHINFO_EXTENSION);
+                        if ($extension == 'yml') {
+                            $fileRead = Yaml::parseFile($pathFile);
+                            foreach ($fileRead as $key => $allProps) {
+                                $result[$key] = $allProps;
+                            }
                         }
                     }
                 }
