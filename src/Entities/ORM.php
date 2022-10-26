@@ -107,7 +107,7 @@ class ORM
         $result = array();
         $config = config()->get('common-config');
         if($config){
-            $dir = ['entity']['mapping']['app'];
+            $dir = $config['entity']['mapping']['app'];
             $cdir = scandir($dir);
             foreach ($cdir as $key => $value) {
                 if (!in_array($value, array(".", ".."))) {
