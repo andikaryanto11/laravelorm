@@ -125,17 +125,17 @@ class ORM
             }
         }
 
-        $dir = base_path() . '/vendor/andikaryanto11/laravelcommon/src/App/Entities/Mapping';
-        $cdir = scandir($dir);
-        foreach ($cdir as $key => $value) {
-            if (!in_array($value, array(".", ".."))) {
-                if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
-                    foreach ($fileRead as $key => $allProps) {
-                        $result[$key] = $allProps;
-                    }
-                }
-            }
+        // $dir = base_path() . '/vendor/andikaryanto11/laravelcommon/src/App/Entities/Mapping';
+        // $cdir = scandir($dir);
+        // foreach ($cdir as $key => $value) {
+        //     if (!in_array($value, array(".", ".."))) {
+        //         if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+        //             $fileRead = Yaml::parseFile($dir . DIRECTORY_SEPARATOR . $value);
+        //             foreach ($fileRead as $key => $allProps) {
+        //                 $result[$key] = $allProps;
+        //             }
+        //         }
+        //     }
         }
         return $result;
     }
