@@ -84,7 +84,10 @@ class Entity implements IEntity
     public function hydrate($data)
     {
         foreach ($this->getProps() as $key => $value) {
-            if (key_exists($value['field'], $data) && !in_array($value['field'], $this->reservedField)) {
+            if (key_exists($value['field'], $data) && 
+                !in_array($value['field'], $this->reservedField) && 
+                !$value['isEntity']
+            ) {
                 $fn = 'set' . ucfirst($key);
                 $newValue = $data[$value['field']];
                 $this->$fn($newValue);
