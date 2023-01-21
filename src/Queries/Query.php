@@ -22,6 +22,7 @@ abstract class Query extends Builder
      */
     public function __construct(
         ConnectionInterface $connection,
+        Grammar $grammar = null,
         Processor $processor = null
     ) {
         $grammar = $connection->query()->getGrammar();
